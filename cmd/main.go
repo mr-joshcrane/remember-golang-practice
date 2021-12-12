@@ -6,5 +6,5 @@ import (
 )
 
 func main() {
-	fmt.Println(remember.Reminder())
+	fmt.Println(remember.RunReminder())
 }

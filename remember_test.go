@@ -6,6 +6,7 @@ import (
 )
 
 func TestMemorise(t *testing.T) {
+	t.Parallel()
 	memory, err := remember.NewMemory(
 		remember.WithInput([]string{"a", "thing", "to", "remember"}),
 		remember.WithOutput(""),

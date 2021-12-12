@@ -10,7 +10,7 @@ import (
 )
 
 type Memory struct {
-	input []io.Reader
+	input  []io.Reader
 	output io.ReadWriter
 }
 
@@ -34,15 +34,26 @@ func WithOutput(output string) Option {
 	}
 }
 
-func NewMemory(opts ...Option) (Memory, error) {
+func DefaultFileStore() (*os.File, error) {
 	_, err := os.Stat("store.txt")
 	if err != nil {
+		if err != os.ErrNotExist {
+			return nil, err
+		}
 		os.Create("store.txt")
 	}
-	defaultFile, err := os.OpenFile("store.txt", os.O_APPEND|os.O_RDWR, 0644)
+	f, err := os.OpenFile("store.txt", os.O_APPEND|os.O_RDWR, 0644)
+	return f, nil
+}
+
+func NewMemory(opts ...Option) (Memory, error) {
+	file, err := DefaultFileStore()
+	if err != nil {
+		return Memory{}, err
+	}
 	m := Memory{
 		[]io.Reader{os.Stdin},
-		defaultFile,
+		file,
 	}
 	for _, opt := range opts {
 		err := opt(&m)
@@ -76,7 +87,7 @@ func (m *Memory) Memorise() error {
 	return err
 }
 
-func Reminder() string {
+func RunReminder() string {
 	m, err := NewMemory(
 		WithInput(os.Args[1:]),
 	)
@@ -85,7 +96,7 @@ func Reminder() string {
 		os.Exit(1)
 	}
 	if len(m.input) == 0 {
-		return m.Recall()	
+		return m.Recall()
 	}
 
 	err = m.Memorise()
