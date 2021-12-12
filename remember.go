@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 	"strings"
 )
@@ -40,7 +39,10 @@ func DefaultFileStore() (*os.File, error) {
 		if err != os.ErrNotExist {
 			return nil, err
 		}
-		os.Create("store.txt")
+		_, err := os.Create("store.txt")
+		if err != nil {
+			return nil, err
+		}
 	}
 	f, err := os.OpenFile("store.txt", os.O_APPEND|os.O_RDWR, 0644)
 	return f, nil
@@ -65,9 +67,9 @@ func NewMemory(opts ...Option) (Memory, error) {
 }
 
 func (m *Memory) Recall() string {
-	data, err := ioutil.ReadAll(m.output)
+	data, err := io.ReadAll(m.output)
 	if err != nil {
-		panic("error opening data store")
+		panic(err.Error())
 	}
 	return string(data)
 }
@@ -75,7 +77,7 @@ func (m *Memory) Recall() string {
 func (m *Memory) Memorise() error {
 	var memorable []string
 	for _, item := range m.input {
-		word, err := ioutil.ReadAll(item)
+		word, err := io.ReadAll(item)
 		if err != nil {
 			return err
 		}
