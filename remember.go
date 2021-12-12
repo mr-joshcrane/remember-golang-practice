@@ -54,8 +54,8 @@ func NewMemory(opts ...Option) (Memory, error) {
 		return Memory{}, err
 	}
 	m := Memory{
-		input: []io.Reader{os.Stdin},
-		output: file,
+		[]io.Reader{os.Stdin},
+		file,
 	}
 	for _, opt := range opts {
 		err := opt(&m)
